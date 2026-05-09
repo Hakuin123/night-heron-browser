@@ -48,30 +48,19 @@ jobs:
       - name: Setup MSVC environment
         uses: ilammy/msvc-dev-cmd@v1
 
-      # ── 5. 下载并解包 Chromium 源码 ──────────────────────────────────
-      # build.py 不接受子命令，直接运行会执行完整流程
-      # 但源码需要先到位才能替换图标，所以分两阶段：
-      # 先只做 retrieve + unpack（通过 ungoogled 的 utils 脚本单独调用）
-      - name: Retrieve Chromium source downloads
+# ── 5. 完整构建（含下载、patch、编译）────────────────────────────
+      - name: Build
         working-directory: ungoogled-chromium-windows
-        run: |
-          mkdir -p build\download_cache
-          python ungoogled-chromium\utils\downloads.py retrieve `
-            -i downloads.ini -c build\download_cache
+        run: python build.py
 
-      - name: Unpack Chromium source
-        working-directory: ungoogled-chromium-windows
-        run: |
-          python ungoogled-chromium\utils\downloads.py unpack `
-            -i downloads.ini -c build\download_cache build\src
-
-      # ── 6. 替换图标（源码已解包，patch 尚未应用）─────────────────────
+      # ── 6. 替换图标（编译完成后，打包前）────────────────────────────
       - name: Replace branding icons
         shell: bash
         run: |
           SRC="ungoogled-chromium-windows/build/src"
           BRANDING="yelu/branding"
 
+          # 替换源码树里的图标（package.py 打包时会重新读取）
           cp "$BRANDING/chrome.ico" \
              "$SRC/chrome/app/theme/chromium/win/chrome.ico"
 
@@ -84,11 +73,10 @@ jobs:
 
           echo "✅ 图标替换完成"
 
-      # ── 7. Apply patches、剪枝、生成 GN 配置、编译 ───────────────────
-      # 源码和图标就位后，跑完整 build.py（跳过已完成的 download 阶段）
-      - name: Apply patches & Build
+      # ── 7. 打包 ──────────────────────────────────────────────────────
+      - name: Package
         working-directory: ungoogled-chromium-windows
-        run: python build.py
+        run: python package.py
 
       # ── 8. 打包安装包 ──────────────────────────────────────────────
       - name: Package installer
