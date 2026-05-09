@@ -33,34 +33,47 @@ jobs:
           # 追加到 series 末尾（在所有 ungoogled patch 之后应用）
           echo "yelu-branding-strings.patch" >> ungoogled-chromium-windows/patches/series
 
-      # ── 4. 下载 Chromium 源码（按 ungoogled 的工作流） ──────────────
+      # ── 4. 环境准备 ───────────────────────────────────────────────────
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: Install dependencies
+      - name: Install Python dependencies
+        working-directory: ungoogled-chromium-windows
+        run: pip install httplib2==0.22.0
+
+      # 激活 Visual Studio 编译器环境（build.py 依赖 cl.exe / link.exe）
+      - name: Setup MSVC environment
+        uses: ilammy/msvc-dev-cmd@v1
+
+      # ── 5. 下载并解包 Chromium 源码 ──────────────────────────────────
+      # build.py 不接受子命令，直接运行会执行完整流程
+      # 但源码需要先到位才能替换图标，所以分两阶段：
+      # 先只做 retrieve + unpack（通过 ungoogled 的 utils 脚本单独调用）
+      - name: Retrieve Chromium source downloads
         working-directory: ungoogled-chromium-windows
         run: |
-          pip install -r requirements.txt
+          mkdir -p build\download_cache
+          python ungoogled-chromium\utils\downloads.py retrieve `
+            -i downloads.ini -c build\download_cache
 
-      - name: Download Chromium source
+      - name: Unpack Chromium source
         working-directory: ungoogled-chromium-windows
         run: |
-          python build.py download
+          python ungoogled-chromium\utils\downloads.py unpack `
+            -i downloads.ini -c build\download_cache build\src
 
-      # ── 5. 替换图标（在 apply patch 之前，因为 patch 不含二进制） ─────
+      # ── 6. 替换图标（源码已解包，patch 尚未应用）─────────────────────
       - name: Replace branding icons
         shell: bash
         run: |
           SRC="ungoogled-chromium-windows/build/src"
           BRANDING="yelu/branding"
 
-          # 主程序图标（Windows 安装包和 exe 使用）
           cp "$BRANDING/chrome.ico" \
              "$SRC/chrome/app/theme/chromium/win/chrome.ico"
 
-          # 各尺寸 PNG（about 页、扩展管理页等 WebUI 使用）
           for size in 16 24 32 48 64 128 256; do
             if [ -f "$BRANDING/logo_${size}.png" ]; then
               cp "$BRANDING/logo_${size}.png" \
@@ -70,23 +83,16 @@ jobs:
 
           echo "✅ 图标替换完成"
 
-      # ── 6. Apply patches & 构建 ──────────────────────────────────────
-      - name: Apply patches
+      # ── 7. Apply patches、剪枝、生成 GN 配置、编译 ───────────────────
+      # 源码和图标就位后，跑完整 build.py（跳过已完成的 download 阶段）
+      - name: Apply patches & Build
         working-directory: ungoogled-chromium-windows
-        run: |
-          python build.py patches
+        run: python build.py
 
-      - name: Configure & Build
-        working-directory: ungoogled-chromium-windows
-        run: |
-          python build.py configure
-          python build.py build
-
-      # ── 7. 打包安装包 ──────────────────────────────────────────────
+      # ── 8. 打包安装包 ──────────────────────────────────────────────
       - name: Package installer
         working-directory: ungoogled-chromium-windows
-        run: |
-          python build.py package
+        run: python package.py
 
       # ── 8. 上传 artifact（构建成功后在 Actions 页面下载） ─────────────
       - name: Upload installer artifact
