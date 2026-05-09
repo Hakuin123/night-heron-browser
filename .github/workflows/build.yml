@@ -9,6 +9,15 @@ jobs:
     timeout-minutes: 360
 
     steps:
+      # ── 0. 解除 Windows 路径长度限制（必须最先执行）────────────────
+      - name: Enable long paths
+        shell: powershell
+        run: |
+          git config --system core.longpaths true
+          Set-ItemProperty `
+            -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" `
+            -Name "LongPathsEnabled" -Value 1
+
       # ── 1. 检出本仓库（含你的 patch 和图标） ──────────────────────────
       - name: Checkout yelu repo
         uses: actions/checkout@v4
