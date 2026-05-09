@@ -34,15 +34,6 @@ jobs:
           # 建议锁定到某个 tag，避免上游改动导致构建失败
           # ref: 'xxx.x.xxxx.xxx-1'
 
-      # ── 3. 把你的品牌 patch 注入到 ungoogled-chromium-windows ─────────
-      - name: Inject yelu branding patches
-        shell: bash
-        run: |
-          cp yelu/patches/yelu-branding-strings.patch \
-             ungoogled-chromium-windows/patches/yelu-branding-strings.patch
-          # 追加到 series 末尾（在所有 ungoogled patch 之后应用）
-          echo "yelu-branding-strings.patch" >> ungoogled-chromium-windows/patches/series
-
       # ── 4. 环境准备 ───────────────────────────────────────────────────
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -61,6 +52,23 @@ jobs:
       - name: Build
         working-directory: ungoogled-chromium-windows
         run: python build.py
+
+# ── 3. 把你的品牌入到 ungoogled-chromium-windows ─────────
+      - name: Inject yelu branding (string replace)
+        shell: python
+        working-directory: ungoogled-chromium-windows
+        run: |
+          from pathlib import Path
+
+          src = Path("build/src")
+          target = src / "chrome/app/chromium_strings.grd"
+
+          text = target.read_text(encoding="utf-8")
+          text = text.replace(">Chromium<", ">夜鹭浏览器<")
+          text = text.replace("- Chromium<", "- 夜鹭浏览器<")
+          text = text.replace("The Chromium Authors", "夜鹭整活工作室")
+          target.write_text(text, encoding="utf-8")
+          print("OK:", target)
 
       # ── 6. 替换图标（编译完成后，打包前）────────────────────────────
       - name: Replace branding icons
