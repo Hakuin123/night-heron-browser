@@ -1,0 +1,42 @@
+--- a/chrome/app/chromium_strings.grd
++++ b/chrome/app/chromium_strings.grd
+@@ -1,6 +1,6 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <!--
+-  This file contains Chromium-specific strings.
++  This file contains 夜鹭浏览器-specific strings.
+   If you update this file, be sure also to update google_chrome_strings.grd.
+ -->
+ <grit base_dir="." latest_public_release="0" current_release="1"
+@@ -8,28 +8,28 @@
+   <release seq="1" allow_pseudo="false">
+     <messages fallback_to_english="true">
+       <!-- Product name strings -->
+-      <message name="IDS_PRODUCT_NAME" desc="The product name">Chromium</message>
+-      <message name="IDS_SHORT_PRODUCT_NAME" desc="A short version of the product name">Chromium</message>
++      <message name="IDS_PRODUCT_NAME" desc="The product name">夜鹭浏览器</message>
++      <message name="IDS_SHORT_PRODUCT_NAME" desc="A short version of the product name">夜鹭</message>
+ 
+       <!-- About page -->
+-      <message name="IDS_ABOUT_VERSION_COMPANY_NAME" desc="Company name on about page">The Chromium Authors</message>
++      <message name="IDS_ABOUT_VERSION_COMPANY_NAME" desc="Company name on about page">夜鹭整活工作室</message>
+ 
+       <!-- Crash strings -->
+-      <message name="IDS_CRASH_RECOVERY_CONTENT" desc="Text content telling the user the browser has crashed.">Whoa! Chromium has crashed. Relaunch now?</message>
++      <message name="IDS_CRASH_RECOVERY_CONTENT" desc="Text content telling the user the browser has crashed.">Whoa! 夜鹭浏览器 has crashed. Relaunch now?</message>
+ 
+       <!-- Password manager -->
+-      <message name="IDS_PASSWORD_MANAGER_TITLE_BRAND" desc="The product name used in the title of the password bubble.">Chromium</message>
++      <message name="IDS_PASSWORD_MANAGER_TITLE_BRAND" desc="The product name used in the title of the password bubble.">夜鹭浏览器</message>
+ 
+       <!-- Taskbar / window title -->
+-      <message name="IDS_BROWSER_WINDOW_TITLE_FORMAT" desc="The window title format string.">%1$s - Chromium</message>
++      <message name="IDS_BROWSER_WINDOW_TITLE_FORMAT" desc="The window title format string.">%1$s - 夜鹭浏览器</message>
+ 
+       <!-- New Tab page description -->
+-      <message name="IDS_NEW_TAB_DESCRIPTION" desc="Description of the new tab page for accessibility.">New Tab - Chromium</message>
++      <message name="IDS_NEW_TAB_DESCRIPTION" desc="Description of the new tab page for accessibility.">新标签页 - 夜鹭浏览器</message>
+ 
+     </messages>
+   </release>
+ </grit>
