@@ -19,7 +19,7 @@
  
        <!-- About page -->
 -      <message name="IDS_ABOUT_VERSION_COMPANY_NAME" desc="Company name on about page">The Chromium Authors</message>
-+      <message name="IDS_ABOUT_VERSION_COMPANY_NAME" desc="Company name on about page">夜鹭整活工作室</message>
++      <message name="IDS_ABOUT_VERSION_COMPANY_NAME" desc="Company name on about page"白熊工作室</message>
  
        <!-- Crash strings -->
 -      <message name="IDS_CRASH_RECOVERY_CONTENT" desc="Text content telling the user the browser has crashed.">Whoa! Chromium has crashed. Relaunch now?</message>
