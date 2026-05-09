@@ -1,7 +1,7 @@
 name: Build 夜鹭浏览器
 
 on:
-  workflow_dispatch:   # 只手动触发，省 Actions 额度
+  workflow_dispatch: # 只手动触发，省 Actions 额度
 
 jobs:
   build-windows:
@@ -21,6 +21,7 @@ jobs:
         with:
           repository: ungoogled-software/ungoogled-chromium-windows
           path: ungoogled-chromium-windows
+          submodules: recursive
           # 建议锁定到某个 tag，避免上游改动导致构建失败
           # ref: 'xxx.x.xxxx.xxx-1'
 
