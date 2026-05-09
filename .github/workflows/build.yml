@@ -47,6 +47,16 @@ jobs:
       # 激活 Visual Studio 编译器环境（build.py 依赖 cl.exe / link.exe）
       - name: Setup MSVC environment
         uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: amd64
+
+      - name: Disable nocompile tests (skip x86 toolchain requirement)
+        shell: bash
+        working-directory: ungoogled-chromium-windows
+        run: |
+          echo 'enable_nocompile_tests = false' >> flags.windows.gn
+          echo "flags.windows.gn now contains:"
+          cat flags.windows.gn
 
 # ── 5. 完整构建（含下载、patch、编译）────────────────────────────
       - name: Build
