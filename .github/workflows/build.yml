@@ -50,13 +50,37 @@ jobs:
         with:
           arch: amd64
 
-      - name: Disable nocompile tests (skip x86 toolchain requirement)
-        shell: bash
+      - name: Patch build.py to stub nocompile.gni before gn gen
+        shell: python
         working-directory: ungoogled-chromium-windows
         run: |
-          echo 'enable_nocompile_tests = false' >> flags.windows.gn
-          echo "flags.windows.gn now contains:"
-          cat flags.windows.gn
+          from pathlib import Path
+
+          bp = Path('build.py')
+          text = bp.read_text(encoding='utf-8')
+
+          # 在 gn gen 调用之前注入 stub，消除对 x86 toolchain 的依赖
+          stub = """
+              # CI: stub nocompile.gni to skip x86 toolchain requirement
+              _nc = Path('build') / 'src' / 'build' / 'nocompile.gni'
+              if _nc.exists():
+                  _nc.write_text(
+                      'template("nocompile_test") {\\n'
+                      '  not_needed(invoker, "*")\\n'
+                      '  group(target_name) { testonly = true }\\n'
+                      '}\\n',
+                      encoding='utf-8'
+                  )
+                  print("nocompile.gni stubbed")
+          """
+
+          marker = "_run_build_process('out\\\\Default\\\\gn.exe', 'gen'"
+          if marker not in text:
+              raise RuntimeError(f"Marker not found in build.py - check line numbers")
+
+          text = text.replace(marker, stub + '\n        ' + marker)
+          bp.write_text(text, encoding='utf-8')
+          print("build.py patched OK")
 
 # ── 5. 完整构建（含下载、patch、编译）────────────────────────────
       - name: Build
